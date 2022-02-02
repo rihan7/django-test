@@ -50,19 +50,17 @@ def get_cart(request):
 class Add_to_cart(View):
 
     def get(self, request, product_id):
-        print(request.GET['size'])
-        print(product_id)
         product = Product.objects.get(id=product_id)
-        print(product)
-        variations = Variation.objects.get(product=product)
+        variations = Variation.objects.filter(product=product)
+        product_variations = []
 
         for item in request.GET:
             key = item
             value = request.GET[item]
-            print(key, value)
-            # variation = variations.object.get(
-            #     variation_category__iexact=key, variation_value__iexact=value)
-
+            variation = variations.filter(
+                variation_category__iexact=key, variation_value__iexact=value)
+            product_variations.append(variation)
+            
         cart = get_cart(request)
 
         try:
