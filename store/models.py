@@ -27,10 +27,10 @@ class Product(models.Model):
 
 class Variation_manager(models.Manager):
     def get_by_color(self):
-        return super(Variation_manager, self).get_queryset().filter(variation_category="color")
+        return super(Variation_manager, self).filter(variation_category="color")
 
     def get_by_size(self):
-        return super(Variation_manager, self).get_queryset().filter(variation_category="size")
+        return super(Variation_manager, self).filter(variation_category="size")
 
 
 variation_choice = (('size', 'Size'), ('color', 'Color'))

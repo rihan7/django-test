@@ -51,18 +51,19 @@ class Add_to_cart(View):
 
     def get(self, request, product_id):
         product = Product.objects.get(id=product_id)
-        variations = Variation.objects.filter(product=product)
+        # variations = Variation.objects.filter(product=product)
         product_variations = []
 
         for item in request.GET:
             key = item
             value = request.GET[item]
-            variation = variations.filter(
-                variation_category__iexact=key, variation_value__iexact=value)
+            variation = Variation.objects.filter(product=product,
+                                                 variation_category__iexact=key, variation_value__iexact=value)
             product_variations.append(variation)
-            
+
         cart = get_cart(request)
 
+        # get or create cart
         try:
             cart = Cart.objects.get(cart_id=cart)
         except Cart.DoesNotExist:
@@ -70,12 +71,22 @@ class Add_to_cart(View):
             cart.save()
 
         try:
-
             cart_item = CartItem.objects.get(cart=cart, product=product)
             cart_item.quantity += 1
+            cart_item.product_variations.set(list(product_variations))
+            for item in product_variations:
+                cart_item.product_variations.add()
             cart_item.save()
-        except CartItem.DoesNotExist:
-            cart_item = CartItem(cart=cart, product=product, quantity=1)
+        # except CartItem.DoesNotExist:
+        except:
+            cart_item = CartItem(cart=cart, product=product,
+                                 quantity=1)
+            cart_item.save()
+            print('-------------------------------')
+            print(cart_item.product)
+            cart_item.variations.set(product_variations)
+            # for item in product_variations:
+            #     cart_item.product_variations.add(item)
             cart_item.save()
 
         return redirect('/cart')
