@@ -1,3 +1,4 @@
+from genericpath import exists
 from django.http.response import HttpResponse
 from cart.models import Cart, CartItem
 from django.shortcuts import get_object_or_404, redirect, render
@@ -50,35 +51,59 @@ def get_cart(request):
 class Add_to_cart(View):
 
     def get(self, request, product_id):
-        product = Product.objects.get(id=product_id)
-        variations = Variation.objects.filter(product=product)
-        product_variations = []
-
-        for item in request.GET:
-            key = item
-            value = request.GET[item]
-            variation = variations.get(
-                variation_category__iexact=key, variation_value__iexact=value)
-            product_variations.append(variation)
-
-        cart = get_cart(request)
-
-        # get or create cart
         try:
-            cart = Cart.objects.get(cart_id=cart)
-        except Cart.DoesNotExist:
-            cart = Cart(cart_id=cart)
-            cart.save()
+            product = Product.objects.get(id=product_id)
+            variations = Variation.objects.filter(
+                product=product).order_by('variation_category')
+            product_variations = []
 
-        try:
-            cart_item = CartItem.objects.get(cart=cart, product=product)
-            cart_item.quantity += 1
-            cart_item.variations.set(product_variations)
-            cart_item.save()
-        except:
-            cart_item = CartItem.objects.create(cart=cart, product=product,
-                                                quantity=1)
-            cart_item.variations.set(product_variations)
+            for item in request.GET:
+                key = item
+                value = request.GET[item]
+                variation = variations.get(
+                    variation_category__iexact=key, variation_value__iexact=value)
+                product_variations.append(variation)
+
+            cart = get_cart(request)
+
+            # get or create cart
+            try:
+                cart = Cart.objects.get(cart_id=cart)
+            except Cart.DoesNotExist:
+                cart = Cart(cart_id=cart)
+                cart.save()
+
+            cart_items = CartItem.objects.filter(
+                cart=cart, product=product)
+
+            if cart_items.exists():
+                exists_variation = []
+                ids = []
+                for item in cart_items:
+                    v = item.variations.all().order_by(
+                        'variation_category')
+                    exists_variation.append(list(v))
+                    ids.append(item.id)
+
+                if product_variations in exists_variation:
+                    index = exists_variation.index(product_variations)
+                    item_id = ids[index]
+                    item = cart_items.get(id=item_id)
+                    item.quantity += 1
+                    item.save()
+
+                else:
+                    cart_item = CartItem.objects.create(cart=cart, product=product,
+                                                        quantity=1)
+                    cart_item.variations.set(product_variations)
+
+            else:
+                cart_item = CartItem.objects.create(cart=cart, product=product,
+                                                    quantity=1)
+                cart_item.variations.set(product_variations)
+
+        except Exception as error:
+            print(error)
 
         return redirect('/cart')
 
