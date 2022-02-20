@@ -55,6 +55,7 @@ class Add_to_cart(View):
             product = Product.objects.get(id=product_id)
             variations = Variation.objects.filter(
                 product=product).order_by('variation_category')
+            print('variations', variations)
             product_variations = []
 
             for item in request.GET:
@@ -84,8 +85,12 @@ class Add_to_cart(View):
                         'variation_category')
                     exists_variation.append(list(v))
                     ids.append(item.id)
+                print('exists_variation', exists_variation)
+                print('product_variations', product_variations)
+                print(product_variations.sort())
 
                 if product_variations in exists_variation:
+                    print('exists_variation', exists_variation)
                     index = exists_variation.index(product_variations)
                     item_id = ids[index]
                     item = cart_items.get(id=item_id)
@@ -106,6 +111,10 @@ class Add_to_cart(View):
             print(error)
 
         return redirect('/cart')
+
+
+def classSort(product):
+    return product['variation_category']
 
 
 class Sub_to_cart(View):

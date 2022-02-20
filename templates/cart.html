@@ -65,13 +65,14 @@
                       </div>
                       <input type="text" class="form-control" value="{{ item.quantity }}" />
                       <div class="input-group-append">
-                        <a
-                          href="{% url 'add_to_cart' item.product.id %}"
-                          class="btn btn-light"
-                          id="button-minus"
-                        >
+                        <form action="{% url 'add_to_cart' item.product.id %}" method="get">
+                          {% for variation in item.variations.all %}
+                            <input hidden name="{{ variation.variation_category }}", value="{{ variation.variation_value | lower }}">
+                          {% endfor %}
+                          <button type="submit" class="btn btn-light" id="button-minus" >
                           <i class="fa fa-plus"></i>
-                        </a>
+                        </button>
+                        </form>
                       </div>
                     </div>
                     <!-- input-group.// -->
