@@ -80,9 +80,9 @@ class Add_to_cart(View):
             if cart_items.exists():
                 for item in cart_items:
                     v = item.variations.all()
-                    print(list(v))
-                    print(product_variations)
-                    print(all(pv in v for pv in product_variations))
+                    # print(list(v))
+                    # print(product_variations)
+                    # print(all(pv in v for pv in product_variations))
                     if all(pv in v for pv in product_variations):
                         item.quantity += 1
                         item.save()
