@@ -54,8 +54,8 @@ class Add_to_cart(View):
         try:
             product = Product.objects.get(id=product_id)
             variations = Variation.objects.filter(
-                product=product).order_by('variation_category')
-            print('variations', variations)
+                product=product)
+
             product_variations = []
 
             for item in request.GET:
@@ -78,31 +78,34 @@ class Add_to_cart(View):
                 cart=cart, product=product)
 
             if cart_items.exists():
-                exists_variation = []
-                ids = []
                 for item in cart_items:
-                    v = item.variations.all().order_by(
-                        'variation_category')
-                    exists_variation.append(list(v))
-                    ids.append(item.id)
-                print('exists_variation', exists_variation)
-                print('product_variations', product_variations)
-                print(product_variations.sort())
+                    v = item.variations.all()
+                    print(list(v))
+                    print(product_variations)
+                    print(all(pv in v for pv in product_variations))
+                    if all(pv in v for pv in product_variations):
+                        item.quantity += 1
+                        item.save()
 
-                if product_variations in exists_variation:
-                    print('exists_variation', exists_variation)
-                    index = exists_variation.index(product_variations)
-                    item_id = ids[index]
-                    item = cart_items.get(id=item_id)
-                    item.quantity += 1
-                    item.save()
+                    # exists_variation.append(list(v))
+                    # ids.append(item.id)
 
-                else:
-                    cart_item = CartItem.objects.create(cart=cart, product=product,
-                                                        quantity=1)
-                    cart_item.variations.set(product_variations)
+                # if product_variations in exists_variation:
+                #     print('exists_variation', exists_variation)
+                #     index = exists_variation.index(product_variations)
+                #     item_id = ids[index]
+                #     item = cart_items.get(id=item_id)
+                #     item.quantity += 1
+                #     item.save()
+
+                    else:
+                        print('not found in matching items')
+                        cart_item = CartItem.objects.create(cart=cart, product=product,
+                                                            quantity=1)
+                        cart_item.variations.set(product_variations)
 
             else:
+                print('not found in cart')
                 cart_item = CartItem.objects.create(cart=cart, product=product,
                                                     quantity=1)
                 cart_item.variations.set(product_variations)
