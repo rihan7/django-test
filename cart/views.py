@@ -77,26 +77,13 @@ class Add_to_cart(View):
             cart_items = CartItem.objects.filter(
                 cart=cart, product=product)
 
+            print('cart_items.exists', cart_items.exists())
             if cart_items.exists():
                 for item in cart_items:
                     v = item.variations.all()
-                    # print(list(v))
-                    # print(product_variations)
-                    # print(all(pv in v for pv in product_variations))
                     if all(pv in v for pv in product_variations):
                         item.quantity += 1
                         item.save()
-
-                    # exists_variation.append(list(v))
-                    # ids.append(item.id)
-
-                # if product_variations in exists_variation:
-                #     print('exists_variation', exists_variation)
-                #     index = exists_variation.index(product_variations)
-                #     item_id = ids[index]
-                #     item = cart_items.get(id=item_id)
-                #     item.quantity += 1
-                #     item.save()
 
                     else:
                         print('not found in matching items')
