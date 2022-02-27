@@ -79,17 +79,20 @@ class Add_to_cart(View):
 
             print('cart_items.exists', cart_items.exists())
             if cart_items.exists():
+                is_exist = False
                 for item in cart_items:
                     v = item.variations.all()
                     if all(pv in v for pv in product_variations):
                         item.quantity += 1
                         item.save()
+                        is_exist = True
+                        break
 
-                    else:
-                        print('not found in matching items')
-                        cart_item = CartItem.objects.create(cart=cart, product=product,
-                                                            quantity=1)
-                        cart_item.variations.set(product_variations)
+                if not is_exist:
+                    print('not found in matching items')
+                    cart_item = CartItem.objects.create(cart=cart, product=product,
+                                                        quantity=1)
+                    cart_item.variations.set(product_variations)
 
             else:
                 print('not found in cart')
