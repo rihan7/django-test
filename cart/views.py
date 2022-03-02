@@ -77,7 +77,7 @@ class Add_to_cart(View):
             cart_items = CartItem.objects.filter(
                 cart=cart, product=product)
 
-            print('cart_items.exists', cart_items.exists())
+            ## if cart exists => item exists in cart items-> increase || item not in cart -> create
             if cart_items.exists():
                 is_exist = False
                 for item in cart_items:
@@ -89,13 +89,11 @@ class Add_to_cart(View):
                         break
 
                 if not is_exist:
-                    print('not found in matching items')
                     cart_item = CartItem.objects.create(cart=cart, product=product,
                                                         quantity=1)
                     cart_item.variations.set(product_variations)
 
             else:
-                print('not found in cart')
                 cart_item = CartItem.objects.create(cart=cart, product=product,
                                                     quantity=1)
                 cart_item.variations.set(product_variations)
@@ -106,18 +104,16 @@ class Add_to_cart(View):
         return redirect('/cart')
 
 
-def classSort(product):
-    return product['variation_category']
-
-
 class Sub_to_cart(View):
 
-    def get(self, request, product_id):
+    def get(self, request, item_id):
 
-        cart = Cart.objects.get(cart_id=request.session.session_key)
-        product = Product.objects.get(id=product_id)
-        cart_item = CartItem.objects.get(
-            cart=cart, product=product, is_active=True)
+        # cart = Cart.objects.get(cart_id=request.session.session_key)
+        # product = Product.objects.get(id=product_id)
+        # cart_item = CartItem.objects.get(
+        #     cart=cart, product=product, is_active=True)
+        
+        cart_item = CartItem.objects.get(id=item_id, cart__cart_id=request.session.session_key)
 
         if cart_item.quantity > 1:
             cart_item.quantity -= 1
@@ -130,11 +126,14 @@ class Sub_to_cart(View):
 
 class remove_cart(View):
 
-    def get(self, request, product_id):
-        cart = Cart.objects.get(cart_id=request.session.session_key)
-        product = Product.objects.get(id=product_id)
-        cart_item = CartItem.objects.get(
-            cart=cart, product=product, is_active=True)
-        cart_item.delete()
+    def get(self, request, item_id):
+        # cart = Cart.objects.get(cart_id=request.session.session_key)
+        # product = Product.objects.get(id=product_id)
+        # cart_item = CartItem.objects.get(
+        #     cart=cart, product=product, is_active=True)
+        # cart_item.delete()
+        
+        cart_item = CartItem.objects.get(id=item_id, cart__cart_id=request.session.session_key).delete()
+        print(cart_item)
 
         return redirect('/cart')

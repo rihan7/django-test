@@ -4,8 +4,7 @@ from django.views.generic.base import View
 from store.models import Product
 from categories.models import Categories
 from django.db.models import Q
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
+from django.core.paginator import Paginator
 # Create your views here.
 
 
