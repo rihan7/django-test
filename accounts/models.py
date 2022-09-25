@@ -9,6 +9,7 @@ class CustomUserModel(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(unique=True, max_length=256)
     first_name = models.CharField(max_length=256)
     last_name = models.CharField(max_length=256)
+    phone = models.IntegerField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
